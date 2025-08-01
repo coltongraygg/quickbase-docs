@@ -1,0 +1,10 @@
+## GetRecords() formula query function
+
+GetRecords() is a [formula query function](https://helpv2.quickbase.com/hc/en-us/articles/4570286674196) that lets you dynamically search for records using a custom query. 
+
+-   You can't use this function on its own. Results depend on the other function where it's used.
+-   Use it within the `[GetFieldValues](https://helpv2.quickbase.com/hc/en-us/articles/17476009195796)`, `[SumValues](https://helpv2.quickbase.com/hc/en-us/articles/17494910680212)`, or `[Size](https://helpv2.quickbase.com/hc/en-us/articles/17495208491796)` functions, which use a list of records as a parameter
+
+## GetRecords() examples
+
+<table><tbody><tr><td>&nbsp;</td><td><strong>To query the same table</strong></td><td><strong>To query a different table</strong></td><td><strong>Result</strong></td></tr><tr><td>Function layout</td><td><p><code>GetRecords("{query}")</code></p></td><td><p><code>GetRecords("{query}", Table Alias)</code></p></td><td><p>List of records</p></td></tr><tr><td>Example using hard-coded value</td><td><p><code>GetRecords("{6.EX.'In Progress'}")</code></p><p>Returns a list of record IDs where the value of field ID 6 is equal to “In Progress”</p></td><td><p><code>GetRecords("{6.EX.'In Progress'}", [_DBID_PROJECTS])</code></p><p>Returns a list of records from the table with alias <code>DBID_PROJECTS</code> where the value of field ID 6 is equal to “In Progress”</p></td><td><p>Results depend on the other function where it's used</p></td></tr><tr><td>Example using field reference</td><td><p><code>GetRecords("{6.EX.'"&amp;[Manager name]&amp;"'}")</code></p><p>Returns a list of record IDs where the value of field ID 6 is equal to whatever value populates the <code>Manager name</code> field of this record</p></td><td><p><code>GetRecords("{6.EX.'"&amp;[Manager name]&amp;"'}",[_DBID_PROJECTS])</code></p><p>Returns a list of record IDs from the table with alias <code>DBID_PROJECTS</code> where the value of field ID 6 is equal to whatever value populates the <code>Manager name</code> field of this record</p></td><td><p>Results depend on the other function where it's used</p></td></tr></tbody></table>
