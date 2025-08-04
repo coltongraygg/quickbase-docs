@@ -597,6 +597,20 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
    - **Display field:** Select "Member Name" from dropdown
    - Click **"Save"**
 
+2. **Add Lookup Fields Through This Relationship**
+   - Navigate to **Settings** > **"Table-to-table relationships"**
+   - Click on the **Tasks → Team Members** relationship you just created
+   - Click **"Add Lookup Field"**
+   - **Field to lookup:** Email
+   - **Field label:** "Assigned Member Email"
+   - Click **"Create"**
+   
+   - Click **"Add Lookup Field"** again
+   - **Field to lookup:** Navigate to find Team Manager field (may need to go through Team Assignments → Team → Team Manager)
+   - **Field label:** "Assigned To Team Manager"
+   - Click **"Create"**
+   - Click **"Done"** to close the relationship configuration
+
 ### Relationship 9: Tasks → Tasks (Dependencies)
 
 1. **Still in Tasks Table**
@@ -627,25 +641,17 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 
 ### In Tasks Table - Add Project Status Lookup
 
-1. **Navigate to Tasks Table**
+1. **Navigate to Tasks Table Relationships**
    - From App Home, click on **"Tasks"** table
-   - Click **"Settings"** > **"Table"** > **"Fields"**
+   - Click **"Settings"** > **"Table-to-table relationships"**
 
 2. **Add Project Status Lookup**
-   - Click **"+ Add field"**
-   - **Field type:** Select **"Lookup"**
-   - **Field name:** "Project Status"
-   - **Look up from:** Select "Project" (the relationship field)
-   - **Field to look up:** Select "Status"
-   - Click **"Save"**
-
-3. **Add Assigned Member Email Lookup**
-   - Click **"+ Add field"**
-   - **Field type:** Select **"Lookup"**
-   - **Field name:** "Assigned Member Email"
-   - **Look up from:** Select "Assigned To" (the relationship field)
-   - **Field to look up:** Select "Email"
-   - Click **"Save"**
+   - Click on the **Tasks → Projects** relationship
+   - Click **"Add Lookup Field"**
+   - **Field to lookup:** Status
+   - **Field label:** "Project Status"
+   - Click **"Create"**
+   - Click **"Done"**
 
 ## Step 6: Create Summary/Formula Fields
 
@@ -922,16 +928,14 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
    - **Remove** any fields not listed above
    - Click **"Done"**
 
-4. **Set Grouping**
-   - Click **"Group & summarize"**
-   - **Group by:** Select "Status"
-   - Click **"Done"**
-
-5. **Set Sorting**
-   - Click **"Sort"**
-   - **Primary sort:** Project Health (A to Z - this will show Critical first)
-   - **Secondary sort:** Days Until Due (smallest to largest)
-   - Click **"Done"**
+4. **Set Sorting and Grouping**
+   - In the **Sorting & Grouping** section, select **"Sort and group from high to low by"**
+   - In the dropdown that appears, select **"Status"**
+   - For **"Grouping by"**, select **"Equal values"**
+   - Leave the checkboxes unchecked:
+     - [ ] Show summary table based on the grouped columns
+     - [ ] Hide main table and show only summary table
+   - Note: This will group projects by their status while still showing all project details
 
 6. **Save Report**
    - Click **"Save"**
@@ -971,15 +975,24 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 3. **Configure Report**
    - **Columns:**
      - Task Name
-     - Project
+     - Related Project
      - Assigned To
      - Status
      - Priority
      - Due Date
      - Estimated Hours
      - Actual Hours
-   - **Group by:** Status
-   - **Sort by:** Priority (A to Z), then Due Date (oldest first)
+   - **Sorting & Grouping:**
+     - Select **"Sort and group from low to high by"**
+     - In the dropdown, select **"Status"**
+     - For **"Grouping by"**, select **"Equal values"**
+   - **Then sort by:**
+     - Click **"Then"**
+     - Select **"sort from low to high by"**
+     - In the dropdown, select **"Priority"**
+     - Click **"Then"** again
+     - Select **"sort from low to high by"**
+     - In the dropdown, select **"Due Date"**
    - Click **"Save"**
 
 ### Report 4: Milestone Tracking Report
@@ -1013,9 +1026,14 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
      - Status
      - Priority
      - Days Until Due
-   - **Sort by:** Target Date (oldest first)
+   - **Sorting:**
+     - Select **"Sort from low to high by"**
+     - In the dropdown, select **"Target Date"**
    - Click **"Save"**
 
+
+
+--- SKIPPING FOR NOW -----
 ## Step 9: Set Up Notifications
 
 ### Notification 1: Task Assignment
@@ -1081,6 +1099,8 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
      ```
    - Click **"Save"**
 
+
+---- -SKIPPING FOR NOW -----
 ### Notification 3: Overdue Task Alert
 
 1. **Navigate to Tasks Table**
@@ -1115,6 +1135,8 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
      ```
    - Click **"Save"**
 
+
+----- SKIPPING FOR NOW AUG 3 -----
 ## Step 10: Configure User Permissions
 
 ### Setting Up Roles
@@ -1177,43 +1199,180 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 
 ### Executive Dashboard
 
-1. **Create New Dashboard**
+1. **First, Create the Chart Reports**
+
+   **Chart 1: Project Status Overview**
+   - Navigate to **Projects** table
+   - Click **"Reports"** tab
+   - Click **"+ New report"**
+   - Select **"Chart"** as report type
+   - **Report name:** "Project Status Overview"
+   - **Chart type:** Pie chart
+   - **Series:** Status
+   - **Series grouping:** Equal values
+   - **Data values:** # of Projects
+   - **Sorting:**
+     - Sort by: Values - # of Projects
+     - Direction: High to low (shows largest slices first)
+   - Click **"Save"**
+
+   **Chart 2: Team Workload Distribution**
+   - Navigate to **Team Members** table
+   - Click **"Reports"** tab
+   - Click **"+ New report"**
+   - Select **"Chart"** as report type
+   - **Report name:** "Team Workload Distribution"
+   - **Chart type:** Bar chart
+   - **X-axis:** Member Name (Equal values)
+   - **Y-axis:** Active Tasks (summed)
+   - **Sorting:**
+     - Sort by: Values - Active Tasks (summed)
+     - Direction: High to low (shows busiest team members first)
+   - Click **"Save"**
+
+   **Report 3: Critical Projects**
+   - Navigate to **Projects** table
+   - Click **"Reports"** tab
+   - Click **"+ New report"**
+   - Select **"Table"** as report type
+   - **Report name:** "Critical Projects Requiring Attention"
+   - **Columns to include:**
+     - Project Title
+     - Status
+     - Completion Percentage
+     - Days Until Due
+     - Team Manager
+     - Budget
+     - Total Tasks
+     - Completed Tasks
+   - **Filter:**
+     - Click **"Filters"**
+     - Add filter: Project Health equals "Critical"
+     - Note: Type "Critical" in the text field
+   - Click **"Save"**
+
+2. **Create the Dashboard**
    - From App Home, click **"+ Add page"**
    - Select **"Dashboard"**
    - **Page name:** "Executive Dashboard"
 
-2. **Add Charts and Reports**
-   - **Chart 1: Project Status Overview**
-     - Click **"+ Add element"** > **"Chart"**
-     - **Table:** Projects
-     - **Chart type:** Pie chart
-     - **Grouping:** Status
-     - **Title:** "Project Status Overview"
+3. **Add Charts and Reports to Dashboard**
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Projects"** > **"Project Status Overview"**
+   - Position on dashboard
    
-   - **Chart 2: Team Workload**
-     - Click **"+ Add element"** > **"Chart"**
-     - **Table:** Team Members
-     - **Chart type:** Bar chart
-     - **X-axis:** Member Name
-     - **Y-axis:** Active Tasks
-     - **Title:** "Team Workload Distribution"
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Team Members"** > **"Team Workload Distribution"**
+   - Position on dashboard
    
-   - **Report: Critical Projects**
-     - Click **"+ Add element"** > **"Report"**
-     - **Table:** Projects
-     - **Filter:** Project Health = "Critical"
-     - **Title:** "Critical Projects Requiring Attention"
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Projects"** > **"Critical Projects Requiring Attention"**
+   - Position on dashboard
 
 ### Team Manager Dashboard
 
-1. **Create Dashboard**
-   - Click **"+ Add page"** > **"Dashboard"**
+1. **First, Create the Reports**
+
+   **Report 1: My Team Members Workload**
+   - First, add lookup fields to Team Assignments table:
+     - Navigate to **Team Assignments** table
+     - Click **"Settings"** > **"Table-to-table relationships"**
+     
+     - Click on **Team Assignments → Team Members** relationship
+     - Add lookup fields:
+       - Active Tasks
+       - Completed Tasks
+       - Task Completion Rate
+     - Click **"Done"**
+     
+     - Click on **Team Assignments → Teams** relationship
+     - Add lookup field:
+       - Team Manager
+     - Click **"Done"**
+   
+   - Create the report:
+     - Navigate to **Team Assignments** table
+     - Click **"Reports"** tab
+     - Click **"+ New report"**
+     - Select **"Table"** as report type
+     - **Report name:** "My Team Members Workload"
+     - **Columns to include:**
+       - Related Team Member (or Team Member name)
+       - Related Team
+       - Role
+       - Active Tasks
+       - Completed Tasks
+       - Task Completion Rate
+     - **Filter:**
+       - Click **"Filters"** > **"Add a filter"**
+       - First filter:
+         - Field: **"Team - Team Manager"** (the lookup field we created)
+         - Operator: **"equals"**
+         - Value: **"the current user"**
+         - Note: If "the current user" option doesn't appear, the Team Manager field in the Teams table needs to be a User type field, not Text
+       - Add second filter:
+         - Field: **"Status"**
+         - Operator: **"equals"**
+         - Value: **"Active"**
+     - **Grouping:**
+       - Group by: Related Team (if managing multiple teams)
+     - **Sorting:**
+       - Sort by Active Tasks (high to low - busiest first)
+     - Click **"Save"**
+
+### ============ THIS IS WHERE I STOPPED - AUGUST 4, 2025 ============
+
+   **Chart 1: Team Project Status**
+   - Navigate to **Projects** table
+   - Click **"Reports"** tab
+   - Click **"+ New report"**
+   - Select **"Chart"** as report type
+   - **Report name:** "Team Project Status"
+   - **Chart type:** Bar chart (stacked)
+   - **X-axis:** Assigned Team (Equal values)
+   - **Y-axis:** # of Projects
+   - **Series:** Status
+   - **Filter:**
+     - Add filter: Team Manager equals Current User
+   - Click **"Save"**
+
+   **Report 2: Upcoming Deadlines**
+   - Navigate to **Tasks** table
+   - Click **"Reports"** tab
+   - Click **"+ New report"**
+   - Select **"Table"** as report type
+   - **Report name:** "Upcoming Deadlines"
+   - **Columns:**
+     - Task Name
+     - Related Project
+     - Assigned To
+     - Due Date
+     - Priority
+     - Status
+   - **Filter:**
+     - Due Date is during the next 7 days
+     - AND Status does not equal "Complete"
+   - **Sorting:**
+     - Sort by Due Date (low to high)
+   - Click **"Save"**
+
+2. **Create the Dashboard**
+   - From App Home, click **"+ Add page"**
+   - Select **"Dashboard"**
    - **Page name:** "Team Manager Dashboard"
 
-2. **Add Elements**
-   - **My Team Tasks Report**
-   - **Team Project Status Chart**
-   - **Upcoming Deadlines Report**
+3. **Add Reports to Dashboard**
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Team Assignments"** > **"My Team Members Workload"**
+   - Position on dashboard
+   
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Projects"** > **"Team Project Status"**
+   - Position on dashboard
+   
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Tasks"** > **"Upcoming Deadlines"**
+   - Position on dashboard
 
 ### Individual Dashboard
 
