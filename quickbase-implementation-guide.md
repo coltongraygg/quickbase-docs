@@ -560,16 +560,87 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 
 1. **Navigate to Key Milestones Table**
    - From App Home, click on **"Key Milestones"** table
-   - Click **"Settings"** > **"Table"** > **"Fields"**
+   - Click **"Settings"** > **"Table-to-table relationships"**
 
-2. **Add Relationship Field**
-   - Click **"+ Add field"**
-   - **Field type:** Select **"Relationship"**
-   - **Field name:** "Project"
-   - **Table to connect to:** Select "Projects"
-   - **Relationship type:** Select "Reference" (Many Milestones to One Project)
-   - **Display field:** Select "Project Title" from dropdown
+2. **Create Relationship**
+   - Click **"+ New relationship"**
+   - **Select table to connect to:** Choose "Projects"
+   - **Relationship type:** Many Key Milestones belong to One Project
+   - **Reference field name:** "Related Project"
+   - Click **"Next"**
+   - **Add lookup fields** (optional):
+     - Project Title
    - Click **"Save"**
+
+### Relationship 6.5: Key Milestones → Tasks (Optional - for Task-Linked Milestones)
+
+**Note:** If this relationship already exists from the initial table setup, skip to step 2.
+
+1. **Create the relationship (if not already existing)**
+   - In Key Milestones Table, go to **"Settings"** > **"Table-to-table relationships"**
+   - Click **"+ New relationship"**
+   - **Select table to connect to:** Choose "Tasks"
+   - **Relationship type:** Many Key Milestones belong to One Task
+   - Click **"Create"**
+   - The system will create a reference field (may be named "Task" or "Related Task")
+   
+2. **Add or verify lookup fields**:
+   - If relationship already exists, click on it to edit
+   - Click **"Add lookup fields"** (or verify these are already added):
+     - **Task Name**
+     - **Status** (not "Project - Status" - you want the task's status directly)
+     - **Due Date** (for automatic target date calculation)
+   - Click **"Done"**
+
+3. **Configure the Related Task field filtering**:
+   - Go to **"Settings"** > **"Fields"**
+   - Find the **"Related Task"** field (or whatever your reference field is named)
+   - Click to edit it
+   - In the field properties, set up the filter:
+     - **Show choices where:** 'Key Milestones: Related Project' = Tasks Table: Related Project
+   - This ensures users only see tasks from the selected project when creating milestones
+   - Click **"Save"**
+   - Note: This field is optional - leave blank for general milestones not tied to specific tasks
+
+4. **Add Formula Field for Automatic Status**
+   - In **"Settings"** > **"Fields"**
+   - Click **"+ Add field"**
+   - **Field type:** Select **"Formula"**
+   - **Field name:** "Auto Status"
+   - **Formula return type:** Select "Text"
+   - **Formula:** Enter:
+     ```
+     If([Task - Status]="Complete", "Complete", [Status])
+     ```
+   - Click **"Save"**
+   - This formula checks if the related task is complete and updates the milestone status accordingly
+   - Note: The lookup field name might be "Task - Status" or "Related Task - Status" depending on how you named the reference field
+
+5. **Add Formula Field for Calculated Target Date**
+   - Click **"+ Add field"**
+   - **Field type:** Select **"Formula"**
+   - **Field name:** "Calculated Target Date"
+   - **Formula return type:** Select "Date"
+   - **Formula:** Enter:
+     ```
+     If(IsNull([Related Task]), [Target Date], [Task - Due Date])
+     ```
+   - Click **"Save"**
+   - This formula uses the task's due date if a task is linked, otherwise uses the manually entered target date
+
+6. **Update Milestone Reports and Forms**
+   - When creating forms, include the "Related Task" field as optional
+   - In reports:
+     - Show "Auto Status" instead of "Status" to reflect task-driven updates
+     - Show "Calculated Target Date" instead of "Target Date" for consistent dates
+   - The manual Status and Target Date fields remain available for milestones not linked to tasks
+
+**Future Enhancement with Pipelines:**
+When you have access to Pipelines, you can create automation that:
+- When a Task status changes to "Complete"
+- Find all milestones where Related Task equals that task
+- Update the milestone Status field to "Complete"
+This would eliminate the need for the formula field approach.
 
 ### Relationship 7: Tasks → Projects
 
@@ -669,7 +740,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 
 3. **Add Total Tasks Summary Field**
    - Under **Parent Table** (Projects) section, click **"Add Summary Field"**
-   - **Summary type:** Select **"Total"**
+   - **Summary type:** Select **"Count"**
    - **Field to summarize:** Select **"Record ID#"**
    - **Matching Criteria:** Leave empty (to count all tasks)
    - **Field name:** "Total Tasks"
@@ -677,7 +748,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 
 4. **Add Completed Tasks Summary Field**
    - Still in the same relationship, click **"Add Summary Field"** again
-   - **Summary type:** Select **"Total"**
+   - **Summary type:** Select **"Count"**
    - **Field to summarize:** Select **"Record ID#"**
    - **Matching Criteria:** Click to add criteria:
      - **Field:** Status
@@ -734,7 +805,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 2. **Add Total Members Summary Field (Teams → Team Assignments)**
    - Click on the relationship between Teams and Team Assignments
    - Under **Parent Table** (Teams) section, click **"Add Summary Field"**
-   - **Summary type:** Select **"Total"**
+   - **Summary type:** Select **"Count"**
    - **Field to summarize:** Select **"Record ID#"**
    - **Matching Criteria:** Add criteria:
      - **Field:** Status
@@ -746,7 +817,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 3. **Add Active Projects Summary Field (Teams → Projects)**
    - Click on the relationship between Teams and Projects
    - Under **Parent Table** (Teams) section, click **"Add Summary Field"**
-   - **Summary type:** Select **"Total"**
+   - **Summary type:** Select **"Count"**
    - **Field to summarize:** Select **"Record ID#"**
    - **Matching Criteria:** Add criteria:
      - **Field:** Status
@@ -764,7 +835,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 2. **Add Active Tasks Summary Field (Team Members → Tasks)**
    - Click on the relationship between Team Members and Tasks
    - Under **Parent Table** (Team Members) section, click **"Add Summary Field"**
-   - **Summary type:** Select **"Total"**
+   - **Summary type:** Select **"Count"**
    - **Field to summarize:** Select **"Record ID#"**
    - **Matching Criteria:** Add criteria:
      - **Field:** Status
@@ -775,7 +846,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 
 3. **Add Completed Tasks Summary Field**
    - Still in the same relationship, click **"Add Summary Field"** again
-   - **Summary type:** Select **"Total"**
+   - **Summary type:** Select **"Count"**
    - **Field to summarize:** Select **"Record ID#"**
    - **Matching Criteria:** Add criteria:
      - **Field:** Status
@@ -887,6 +958,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
    - **Include all fields:**
      - Member Name
      - Email
+     - User Account
      - Employee ID
      - Department
      - Job Title
@@ -897,6 +969,64 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
    - Click **"Form properties"**
    - **Save button text:** "Add Team Member"
    - Click **"Save"**
+
+### Team Assignments Form
+
+1. **Navigate to Team Assignments Table**
+   - From App Home, click on **"Team Assignments"** table
+   - Click **"Forms"** tab
+
+2. **Create New Form**
+   - Click **"+ New form"**
+   - **Form name:** "Team Assignment Form"
+   - **Form type:** Select "Add"
+   - Click **"Create form"**
+
+3. **Configure Form Layout**
+   - **Include only these fields:**
+     - Related Team Member
+     - Related Team
+     - Status
+   - **Remove/hide these fields:**
+     - Assignment Date
+     - Role
+     - Team Member - Member Name (lookup field)
+     - Team Name (lookup field)
+     - Team Manager (lookup field)
+
+4. **Set Form Properties**
+   - Click **"Form properties"**
+   - **Save button text:** "Assign Team Member"
+   - Click **"Save"**
+
+### Project Team Assignments Form
+
+1. **First, Clean Up Unnecessary Fields**
+   - Navigate to **Project Team Assignments** table
+   - Click **"Settings"** > **"Fields"**
+   - Consider deleting these fields if not needed:
+     - Assignment Date
+     - Role on Project
+     - Status
+
+2. **Create Simplified Form**
+   - Click **"Forms"** tab
+   - Click **"+ New form"**
+   - **Form name:** "Assign to Project Form"
+   - **Form type:** Select "Add"
+   - Click **"Create form"**
+
+3. **Configure Form Layout**
+   - **Include only these fields:**
+     - Related Project
+     - Related Team Member
+   - **Remove/hide these lookup fields:**
+     - Project Title (lookup)
+     - Team Member - Member Name (lookup)
+
+4. **Set as Default Form**
+   - Go to Settings > Forms
+   - Set "Assign to Project Form" as the default form for adding records
 
 
 ### THIS IS WHERE I STOPPED 8/1/25 
@@ -1314,11 +1444,88 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
          - Field: **"Status"**
          - Operator: **"equals"**
          - Value: **"Active"**
-     - **Grouping:**
-       - Group by: Related Team (if managing multiple teams)
-     - **Sorting:**
-       - Sort by Active Tasks (high to low - busiest first)
+     - **Grouping and Sorting:**
+       - Click **"Sort & group"** dropdown
+       - Select **"Sort and group from low to high by"** > **"Related Team"**
+       - For **"Grouping by"**, select **"Equal values"**
+       - Click **"then"**
+       - Select **"sort from high to low by"** > **"Team Member - Active Tasks"**
+       - This groups team members by their team alphabetically and shows busiest members first within each group
      - Click **"Save"**
+
+## Step 13: Task Dependencies (Relies Upon Functionality)
+
+### Overview
+This feature allows tasks to depend on other tasks, creating a workflow where some tasks cannot start until prerequisite tasks are complete.
+
+### Setup Task Dependencies
+
+**Note:** This assumes you already have a self-referencing Tasks → Tasks relationship.
+
+1. **Add Lookup Fields to Existing Relationship**
+   - Go to **Tasks** table > **Settings** > **Table-to-table relationships**
+   - Find the **Tasks → Tasks** relationship (self-referencing)
+   - Click to edit it
+   - Click **"Add lookup fields"**
+   - Select these fields:
+     - **Status** (creates "Relies Upon - Status")
+     - **Due Date** (creates "Relies Upon - Due Date")
+     - **Related Project** (creates "Relies Upon - Related Project")
+   - The existing lookup should already include "Task Name"
+
+2. **Add Conditional Filtering to Relies Upon Field**
+   - Go to **Settings** > **Fields**
+   - Edit the **"Relies Upon"** field (the numeric reference field)
+   - Check **"The values in this field depend on a selection in another field"**
+   - **Parent field:** Related Project
+   - **Show choices where:** Tasks Table: Related Project = Tasks Table: Related Project
+   - This ensures users only see tasks from the same project
+
+3. **Add Formula Fields**
+   
+   **Can Start Status:**
+   - Field type: **Formula**
+   - Name: **"Can Start"**
+   - Return type: **Text**
+   - Formula: `If(IsNull([Relies Upon]), "Ready", If([Relies Upon - Status]="Complete", "Ready", "Blocked"))`
+   
+   **Is Blocking Others Indicator:**
+   - Field type: **Formula**
+   - Name: **"Is Blocking Others"**
+   - Return type: **Text**
+   - Formula: `If(ToNumber([Task records]) > 0, "Yes - " & [Task records] & " tasks waiting", "No")`
+
+4. **Create Task Status Report**
+   - Navigate to **Tasks** table
+   - Click **"Reports"** tab
+   - Click **"+ New report"**
+   - Select **"Table"** as report type
+   - **Report name:** "Task Status Report"
+   - **Columns to include:**
+     - Task Name
+     - Related Project (or Project Title)
+     - Assigned To (or Member Name)
+     - Due Date
+     - Priority
+     - Status
+     - Relies Upon - Task Name
+     - Can Start
+     - Is Blocking Others
+   - **Sorting:**
+     - Sort from high to low by Priority
+     - Then sort from low to high by Due Date
+   - Click **"Save"**
+
+5. **Update Task Forms**
+   - Add **"Relies Upon"** field to task creation/edit forms
+   - Add **"Can Start"** field to show blocking status
+   - The conditional filtering will automatically show only tasks from the same project
+
+### Benefits
+- Visual indication of task dependencies
+- Users can see which tasks are blocked vs ready to start
+- Identify critical path tasks that are blocking others
+- Better project workflow management
 
 ### ============ THIS IS WHERE I STOPPED - AUGUST 4, 2025 ============
 
@@ -1329,7 +1536,7 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
    - Select **"Chart"** as report type
    - **Report name:** "Team Project Status"
    - **Chart type:** Bar chart (stacked)
-   - **X-axis:** Assigned Team (Equal values)
+   - **X-axis:** Related Team (Equal values)
    - **Y-axis:** # of Projects
    - **Series:** Status
    - **Filter:**
@@ -1376,14 +1583,146 @@ This guide provides detailed UI navigation steps for building a comprehensive pr
 
 ### Individual Dashboard
 
-1. **Create Dashboard**
+1. **First, Set Up User Account Fields**
+
+   **Add User Account field to Team Members table:**
+   - Navigate to **Team Members** table
+   - Click **"Settings"** (gear icon)
+   - Click **"Fields"**
+   - Click **"+ New field"**
+   - **Field label:** "User Account"
+   - **Field type:** Select **"User"**
+   - Click **"Add"**
+   - Note: You'll need to populate this field with the corresponding Quickbase user for each team member
+
+   **Add lookup field to Tasks table:**
+   - Navigate to **Tasks** table
+   - Click **"Settings"** > **"Table-to-table relationships"**
+   - Find the **Tasks → Team Members** relationship (using Assigned To field)
+   - Click on the relationship
+   - In the **"Add lookup fields"** section:
+     - Find and select **"User Account"**
+     - Click **"Add Lookup Field"**
+   - Click **"Done"**
+   - This creates a field called "Assigned To - User Account" in the Tasks table
+
+2. **Create the Personal Reports**
+
+   **Report 1: My Tasks**
+   - Navigate to **Tasks** table
+   - Click **"Reports"** tab
+   - Click **"+ New report"**
+   - Select **"Table"** as report type
+   - **Report name:** "My Tasks"
+   - **Columns to include:**
+     - Task Name
+     - Related Project
+     - Due Date
+     - Priority
+     - Status
+   - **Filter:**
+     - Click **"Filters"** > **"Add a filter"**
+     - Field: **"Assigned To - User Account"** (the lookup field we created)
+     - Operator: **"equals"**
+     - Value: **"the current user"**
+   - **Sorting:**
+     - Click **"Sort & group"** dropdown
+     - Select **"Sort from low to high by"** > **"Due Date"**
+   - Click **"Save"**
+
+   **Report 2: My Completion Metrics**
+   - First, create a formula field in Tasks table:
+     - Navigate to **Tasks** table
+     - Click **"Settings"** > **"Fields"**
+     - Click **"+ New field"**
+     - **Field label:** "Is Complete"
+     - **Field type:** Select **"Formula - Numeric"**
+     - **Formula:** `If([Status]="Complete",1,0)`
+     - Click **"Add"**
+   
+   - Now create the report:
+     - Navigate to **Tasks** table
+     - Click **"Reports"** tab
+     - Click **"+ New report"**
+     - Select **"Summary"** as report type
+     - **Report name:** "My Completion Metrics"
+     - **Summarize Data section:**
+       - In **"Summarize"** dropdown, select **"# of Tasks"**
+       - For **"Display as"**, select **"Normal value"**
+       - Rename this column to **"Total Tasks"**
+       - Click **"+ Add"** to add another summary
+       - In **"Summarize"** dropdown, select **"Is Complete"** (the formula field)
+       - For **"Summarize by"**, select **"Totals"**
+       - For **"Display as"**, select **"Normal value"**
+       - Rename this column to **"Completed Tasks"**
+     - **Grouping and crosstabs section:**
+       - In **"Rows"**, click **"Group by"** and select **"Assigned To"**
+       - For **"Combine"**, select **"Equal values"**
+       - Leave **"Crosstabs"** as **"Don't group columns"**
+     - **Sorting section:**
+       - Leave as **"Default order"**
+   - **Filter:**
+     - Click **"Filters"** > **"Add a filter"**
+     - Field: **"Assigned To - User Account"** (the lookup field we created)
+     - Operator: **"equals"**
+     - Value: **"the current user"**
+   - Click **"Save"**
+
+2. **Create Dashboard**
    - Click **"+ Add page"** > **"Dashboard"**
    - **Page name:** "My Dashboard"
 
-2. **Add Personal Elements**
-   - **My Tasks Report** (filtered by Current User)
-   - **My Projects Report**
-   - **My Completion Metrics**
+3. **Add Personal Reports to Dashboard**
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Tasks"** > **"My Tasks"**
+   - Position on dashboard
+   
+   - Click **"Add Widget"** > **"Report"**
+   - Select **"Tasks"** > **"My Completion Metrics"**
+   - Position on dashboard
+
+## Step 11: Managing Team and Project Assignments
+
+### Team Assignments (Manual Process)
+
+Currently, team assignments are managed manually. When you need to assign a team member to a team:
+
+1. Navigate to **Team Assignments** table
+2. Click **"New Team Assignment"**
+3. Select the **Team Member** and **Team**
+4. Set **Status** to "Active"
+5. Click **"Save"**
+
+**Future Enhancement with Pipelines:**
+This process could be automated when new team members are added. A pipeline could automatically create team assignments based on department or other criteria.
+
+### Project Team Assignments (Manual Process)
+
+When a project is assigned to a team, you need to manually create Project Team Assignments to track which team members are working on that project:
+
+1. Create or edit a **Project** and assign it to a **Team**
+2. Navigate to **Project Team Assignments** table
+3. For each active team member on that team:
+   - Click **"New Project Team Assignment"**
+   - Select the **Project**
+   - Select the **Team Member**
+   - Click **"Save"**
+
+**Future Enhancement with Pipelines:**
+When you have access to Pipelines, you can automate this process:
+
+**Pipeline: Auto-assign Team Members to Projects**
+- **Trigger**: When a Project is created or its Related Team field is modified
+- **Steps**:
+  1. Search for all Team Assignments where:
+     - Related Team equals the Project's Team
+     - Status equals "Active"
+  2. For each Team Assignment found:
+     - Create a Project Team Assignment record
+     - Set Related Project to the triggering project
+     - Set Related Team Member to the team member from the assignment
+
+This automation ensures that whenever a project is assigned to a team, all active members of that team are automatically linked to the project.
 
 ## Step 12: Testing and Validation
 
