@@ -724,6 +724,21 @@ This would eliminate the need for the formula field approach.
    - Click **"Create"**
    - Click **"Done"**
 
+### In Project Team Assignments Table - Add Team Name Lookup
+
+1. **Navigate to Project Team Assignments Table Relationships**
+   - From App Home, click on **"Project Team Assignments"** table
+   - Click **"Settings"** > **"Table-to-table relationships"**
+
+2. **Add Team Name from Project**
+   - Click on the **Project Team Assignments → Projects** relationship
+   - Click **"Add Lookup Field"**
+   - Navigate to **"Related Team"** > **"Team Name"**
+   - **Field label:** "Project Team Name"
+   - Click **"Create"**
+   - Click **"Done"**
+   - This displays which team the project is assigned to in your Project Team Assignments table
+
 ## Step 6: Create Summary/Formula Fields
 
 ### In Projects Table - Create Summary Fields Through Relationships
@@ -1487,13 +1502,23 @@ This feature allows tasks to depend on other tasks, creating a workflow where so
    - Field type: **Formula**
    - Name: **"Can Start"**
    - Return type: **Text**
-   - Formula: `If(IsNull([Relies Upon]), "Ready", If([Relies Upon - Status]="Complete", "Ready", "Blocked"))`
+   - Formula: `If([Status]="Complete", "Complete", If([Relies Upon]=0, "Yes", If([Relies Upon - Status]="Complete", "Ready", "Blocked")))`
+   - Note: Quickbase stores 0 (not null) in empty reference fields
    
    **Is Blocking Others Indicator:**
    - Field type: **Formula**
    - Name: **"Is Blocking Others"**
    - Return type: **Text**
-   - Formula: `If(ToNumber([Task records]) > 0, "Yes - " & [Task records] & " tasks waiting", "No")`
+   - **Option 1 - Using Summary Field:**
+     - First create a summary field on the parent side of the Tasks → Tasks relationship to count dependent tasks
+     - Formula: `If([Status]="Complete", "No", If([# of Tasks] > 0, "Yes - " & [# of Tasks] & " tasks waiting", "No"))`
+   - **Option 2 - Using Formula Query (if summary field won't cooperate):**
+     - Field type: **Formula - Numeric**
+     - Name: **"Tasks Depending on This"**
+     - Formula: `Size(GetRecords("{17.EX." & [Record ID#] & "}", "your_tasks_table_dbid"))`
+     - Note: Replace 17 with your Relies Upon field ID and your_tasks_table_dbid with your actual table ID from the URL
+     - Then create Is Blocking Others as: `If([Status]="Complete", "No", If([Tasks Depending on This] > 0, "Yes - " & [Tasks Depending on This] & " tasks waiting", "No"))`
+   - Note: Completed tasks show "No" regardless of dependencies since they're no longer blocking
 
 4. **Create Task Status Report**
    - Navigate to **Tasks** table
@@ -1708,19 +1733,71 @@ When a project is assigned to a team, you need to manually create Project Team A
    - Select the **Team Member**
    - Click **"Save"**
 
-**Future Enhancement with Pipelines:**
-When you have access to Pipelines, you can automate this process:
+**Automation with Pipelines:**
 
-**Pipeline: Auto-assign Team Members to Projects**
-- **Trigger**: When a Project is created or its Related Team field is modified
-- **Steps**:
-  1. Search for all Team Assignments where:
-     - Related Team equals the Project's Team
-     - Status equals "Active"
-  2. For each Team Assignment found:
-     - Create a Project Team Assignment record
-     - Set Related Project to the triggering project
-     - Set Related Team Member to the team member from the assignment
+When you have access to Pipelines, you can automate this process. Here's how to implement it:
+
+### Pipeline: Auto-assign Team Members to Projects
+
+#### Step 1: Create New Pipeline
+
+1. **Navigate to Pipelines**
+   - From App Home, click **"Settings"** > **"Pipelines"**
+   - Click **"+ New Pipeline"**
+   - **Name:** "Auto-assign Team Members to Projects"
+   - **Description:** "When a project is assigned to a team, automatically add all team members"
+   - Click **"Create"**
+
+#### Step 2: Configure Trigger
+
+1. **Set up Trigger**
+   - In Step A, click **"Select a trigger"**
+   - Choose **"Quickbase"** > **"New Event"**
+   - **Table:** Select **"Projects"**
+   - **Fields:** Select **"Related Team"** (or "Assigned Team")
+   - **Trigger on any field:** No
+   - **Trigger on Any of These Specific Fields:** Select **"Related Team"**
+   - **On add record:** Yes
+   - **On modify record:** Yes
+   - **On delete record:** No
+
+#### Step 3: Add Search for Team Members
+
+1. **Add Step B - Search Records**
+   - Click **"+"** to add new step
+   - Choose **"Quickbase"** > **"Search Records"**
+   - **Table:** Select **"Team Assignments"**
+   - **Add Filters:**
+     - Filter 1: **"Related Team"** equals {{a.related_team}}
+     - Filter 2: **"Status"** equals "Active"
+
+#### Step 4: Add Loop to Create Assignments
+
+1. **Add Step C - For Each Loop**
+   - Click **"+"** to add new step
+   - Choose **"Loops"** > **"For Each"**
+   - **Loop through:** Team Assignments (automatically selected)
+
+2. **Add Step D - Create Records (inside loop)**
+   - Click **"+"** inside the loop
+   - Choose **"Quickbase"** > **"Create Record"**
+   - **Table:** Select **"Project Team Assignments"**
+   - **Field mappings:**
+     - **Related Project:** Select from trigger (On New Event > Record ID)
+     - **Related Team Member:** Select from loop (Search Records > Team Member > Record ID#)
+     - **Assignment Date:** Type "Today"
+     - **Status:** Type "Active"
+
+#### Step 5: Activate and Test
+
+1. **Save and Activate**
+   - Save the pipeline
+   - Toggle to **"Active"**
+
+2. **Test the Pipeline**
+   - Create a test project with a team assigned
+   - Check Project Team Assignments table for automatic records
+   - Review pipeline activity log for any errors
 
 This automation ensures that whenever a project is assigned to a team, all active members of that team are automatically linked to the project.
 
